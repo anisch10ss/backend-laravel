@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Assurance;
+use App\Objet;
+
 class AssuranceController extends Controller
 {
     /**
@@ -13,30 +15,29 @@ class AssuranceController extends Controller
      */
     public function index()
     {
-       $aa=[];
-       foreach(Assurance::get() as $a)
-       {
-        $rules = [
-            'id' => $a->id,
-            'objet' =>$a->objets->nom,
-            'Pack' =>$a->Pack,
-            'Date_debut' =>$a->Date_debut,
-            'Date_fin'=>$a->Date_fin,
-            'Etat_demande'=>$a->Etat_demande
-
-        ];
-        array_push($aa,$rules);
-        
-       }
-       return response()->json($aa, 200);
-
-
+        $aa = [];
+        foreach (Assurance::get() as $a) {
+            $rules = [
+                'id' => $a->id,
+                'objet' => $a->objets['nom'],
+                'Pack' => $a->Pack,
+                'Date_debut' => $a->Date_debut,
+                'Date_fin' => $a->Date_fin,
+                'Etat_demande' => $a->Etat_demande
+            ];
+            array_push($aa, $rules);
+        }
+        return response()->json($aa, 200);
     }
     public function index2()
     {
+
+        /* 
        $aa=[];
-       foreach(Assurance::get() as $a)
+       
+       foreach(Assurance::find() as $a)
        {
+        error_log('Some message here.');
         $rules = [
             'objet' =>$a->objets->nom,
             'Type'=> $a->Type,
@@ -47,9 +48,7 @@ class AssuranceController extends Controller
         array_push($aa,$rules);
         
        }
-       return response()->json($aa, 200);
-
-
+       return response()->json($aa, 200); */
     }
 
 
@@ -71,9 +70,26 @@ class AssuranceController extends Controller
      */
     public function store(Request $request)
     {
-        $assurance=Assurance::create($request->all());
-        return response()->json($assurance, 200);    }
+        $assurance = new Assurance;
+        $objet = new Objet;
+        $user = $request->user();
 
+        $objet->nom = $request->nom;
+        $assurance->Type = $request->type;
+        $assurance->Etat_demande = $request->state;
+        $assurance->Pack = $request->pack;
+        $assurance->Proof = $request->proof;
+        $assurance->Photo = $request->photo;
+
+        $result = $assurance->save();
+        $result2 = $objet->save();
+
+        if ($result && $result2) {
+            return ["Result" => ["Assurance" => $assurance, "Objet" => $objet]];
+        } else {
+            return ["Result" => "Data has not been saved"];
+        }
+    }
     /**
      * Display the specified resource.
      *
@@ -106,8 +122,8 @@ class AssuranceController extends Controller
     public function update(Request $request, $assurance)
     {
         $assurance->update($request->all());
-        return response()->json($assurance, 200);   
-     }
+        return response()->json($assurance, 200);
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -118,6 +134,6 @@ class AssuranceController extends Controller
     public function destroy(Assurance $assurance)
     {
         $assurance->delete();
-        return response()->json(null,204);    }
+        return response()->json(null, 204);
+    }
 }
-

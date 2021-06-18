@@ -1,6 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers;
+use Illuminate\Support\Facades\Auth;
+use TCG\Voyager\Facades\Voyager;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -22,10 +27,15 @@ Route::get('/', function () {
 
 Auth::routes();
 
-//Route::get('/assurance', 'AssuranceController@index')->name('home');
-//Route::get('/assurance2', 'AssuranceController@index2')->name('home');
-//Route::get('/remboursement', 'RemboursementController@index')->name('home');
+
 
 Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
 });
+Route::get('/assurance', 'AssuranceController@index');
+Route::get('/remboursement', 'RemboursementController@index')->name('home');
+Route::post("login",[UserController::class,'index']);
+Route::post("registre",'UserController@create');
+Route::apiResource('cour','CourController');
+Route::post('/assurance2', 'AssuranceController@store');
+Route::post('/editprofile', 'ClientController@store'); 
